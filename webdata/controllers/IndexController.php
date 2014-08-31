@@ -131,6 +131,13 @@ class IndexController extends Pix_Controller
             return $this->alert("未輸入任何關鍵字", "/");
         }
 
+        $disallow = '!@#$%^&*()_+[]{}\|';
+        for ($i = 0; $i < strlen($disallow); $i ++) {
+            if (false !== strpos($name, $disallow[$i])) {
+                return $this->alert("使用到不允許的字串", "/");
+            }
+        }
+
         try {
             $n = NameList::insert(array(
                 'name' => strval($_POST['name']),
