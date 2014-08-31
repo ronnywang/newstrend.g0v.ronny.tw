@@ -1,0 +1,13 @@
+<?= $this->partial('/common/header.phtml', $this) ?>
+<ol>
+    <?php foreach (NameList::search(1) as $name_list) { ?>
+    <li>
+    <a href="/index/stats/<?= $name_list->id ?>"><?= $this->escape($name_list->name) ?></a>
+    資料更新時間:<?= date('Y/m/d H:i:s', $name_list->count_at) ?>
+    </li>
+    <?php } ?>
+    <form method="post" action="/index/addname">
+        新關鍵字: <input type="text" name="name"><button type="submit">新增</button>
+    </form>
+</ol>
+<?= $this->partial('/common/footer.phtml', $this) ?>
