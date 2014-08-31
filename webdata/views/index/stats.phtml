@@ -156,7 +156,7 @@ d3.csv("/index/csv/<?= $this->name_list->id ?>", function(error, data) {
       .text(function(d) { return d.name; });
 
     d3.select('svg').on('mouseover', function(d){
-        var date = x.invert(d3.mouse(this)[0]);
+        var date = x.invert(d3.mouse(this)[0] - 50);
         var ymd = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
         $('#date').text(ymd);
         for (var id in sources) {
