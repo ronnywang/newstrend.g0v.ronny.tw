@@ -151,4 +151,50 @@ class IndexController extends Pix_Controller
 
         return $this->redirect('/index/stats/' . $n->id);
     }
+
+    public function rssAction()
+    {
+        list(, /*index*/, /*rss*/, $name, $year_month) = explode('/', $this->getURI());
+
+        $records = array();
+
+        foreach (glob(getenv('DATA_PATH') . '/' . intval($year_month) . '*') as $file) {
+            $cmd = "zgrep --no-filename -B 2 -A 2 " . escapeshellarg($name) . " " . escapeshellarg($file) . " | grep '{\"id\"' -A 2";
+            $lines = explode("\n", trim(`$cmd`));
+            for ($i = 0; $i < count($lines) - 2; $i ++) {
+                $line = $lines[$i];
+                if (strpos($line, '{"id":"') !== 0) {
+                    continue;
+                }
+                if ($lines[$i + 1] == '--' or $lines[$i + 2] == '--') {
+                    continue;
+                }
+
+                $record = json_decode($line);
+                $i ++;
+                $record->title = json_decode($lines[$i]);
+                $i ++;
+                $record->body = json_decode($lines[$i]);
+                $records[] = $record;
+            }
+        }
+        //return $this->json($records);
+        $this->view->title = "關於 {$name} 在 {$year_month} 資料";
+        $this->view->link = "http://ronny.tw";
+        $this->view->description = "";
+        $this->view->items = array_map(function($a){
+            $ret = new StdClass;
+            if ($a->source == 1) {
+                $a->body = preg_replace('#<a href="[^"]*">【蘋論陣線】.*#', '', $a->body);
+                $a->body = preg_replace('#<a href="[^"]*">有話要說 投稿.*#', '', $a->body);
+                $a->body = preg_replace('#<a href="[^"]*">【臉團】：臉書熱門.*#', '', $a->body);
+                $a->body = preg_replace('#《即時論壇》徵稿.*#', '', $a->body);
+            }
+            $ret->description = $a->title;
+            //$ret->description = trim($a->title . $a->body);
+            $ret->time = date('c', $a->created_at);
+            $ret->link = $a->url;
+            return $ret;
+        }, $records);
+    }
 }
