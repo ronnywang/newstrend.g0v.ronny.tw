@@ -82,7 +82,16 @@ class IndexController extends Pix_Controller
                 if ($id == 0) {
                     continue;
                 }
-                $ret[] = intval(10000.0 * $hit_count[$date][$id]['count'] / $total_news_count[$date . '-' . $id]);
+                $ret[] = $hit_count[$date][$id]['count'];
+            }
+            fputcsv($output, $ret);
+
+            $ret = array($date . '總數');
+            foreach ($sources as $id => $name) {
+                if ($id == 0) {
+                    continue;
+                }
+                $ret[] = $total_news_count[$date . '-' . $id];
             }
             fputcsv($output, $ret);
         }
