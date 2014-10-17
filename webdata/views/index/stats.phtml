@@ -100,7 +100,38 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("/index/csv/<?= $this->name_list->id ?>", function(error, data) {
+$.get("/index/csv/<?= $this->name_list->id ?>", function(ret){
+  var lines = ret.split("\n");
+  var columns = lines[0].split(",");
+  records = [];
+  for (var i = 1; i < lines.length; i += 2) {
+      record = {};
+          
+      data_line = lines[i];
+      if ('' == data_line) {
+          break;
+      }
+      total_line = lines[i + 1];
+
+      data_values = data_line.split(',');
+      total_values = total_line.split(',');
+
+      var year = data_values[0].substr(0, 4);
+      var month = data_values[0].substr(4, 2);
+      var day = data_values[0].substr(6, 2);
+      record.date = data_values[0]; //new Date(year + '/' + month + '/' + day);
+
+      for (var j = 1; j < columns.length; j ++) {
+          if (parseInt(data_values[j]) && parseInt(total_values[j])) {
+              record[columns[j]] = 10000.0 * parseInt(data_values[j]) / parseInt(total_values[j]);
+          } else {
+              record[columns[j]] = 0;
+          }
+      }
+
+      records.push(record);
+  }
+  data = records;
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
 
   data.forEach(function(d) {
@@ -172,7 +203,7 @@ d3.csv("/index/csv/<?= $this->name_list->id ?>", function(error, data) {
         }
     });
 
-});
+}, 'text');
 
 </script>
 <?= $this->partial('/common/footer.phtml') ?>
