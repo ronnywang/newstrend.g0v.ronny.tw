@@ -4,6 +4,7 @@ class NameListRow extends Pix_Table_Row
 {
     public function countWord()
     {
+        setlocale(LC_ALL, 'en_US.UTF-8');
         foreach (glob(getenv('DATA_PATH') . '/*.gz') as $gz_file) {
             $cmd = 'zgrep -B 2 ' . escapeshellarg($this->name) . ' ' . escapeshellarg($gz_file) . ' | grep --only-match \'"source":"[0-9]*"\' | sort | uniq -c';
 
